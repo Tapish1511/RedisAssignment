@@ -95,6 +95,7 @@ async function GetOrder(RequestPacket){
 async function GetAllOrders(){
     try{
         const {keys} = await client.SCAN(0, {MATCH:'*_*_*_*'});
+        const filterdKeys = keys.filter(key=>key.match(/^[0-9]+_[0-9]+_[0-9]+_[0-9]+$/))
         //console.log(keys)
         const AllData = await Promise.all(keys.map(async(hashName)=>{
             const dataStr = await client.hGetAll(hashName);

@@ -3,6 +3,9 @@ const { AddOrder, UpdateOrder, RemoveOrder, GetOrder, GetAllOrders } = require( 
 
 
 async function ClientOperations(RequestPacket){
+    if(RequestPacket.TenantId === undefined || RequestPacket.OMSId === undefined || RequestPacket.ClientId === undefined){
+        return {sucess: false, message: 'invalid packet for client'}
+    }
     switch(RequestPacket.OperationType){
         case 100:
             return await AddClient(RequestPacket);
@@ -15,13 +18,16 @@ async function ClientOperations(RequestPacket){
         case 104:
             return await GetAllClients();
         default:
-            return {status: false, message:"invalid operaton"};
+            return {sucess: false, message:"invalid operaton"};
 
 
     }
 }
 
 async function OrderOperations(RequestPacket){
+    if(RequestPacket.TenantId === undefined || RequestPacket.OMSId === undefined || RequestPacket.ClientId === undefined || RequestPacket.OrderId === undefined){
+        return {sucess: false, message: 'invalid packet for Order'}
+    }
     if(RequestPacket.OrderType !== 1 && RequestPacket.OrderType !== 2){
         return {status:false, message: "invalid order type"};
     }

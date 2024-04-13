@@ -5,7 +5,6 @@ async function AddClient(RequestPacket){
     try{
 
         const res = await client.hGet(HashName, `${RequestPacket.ClientId}`)
-    
         if(res !== null){
             return {success: false, message: "Client id already exists"};
         }
@@ -68,14 +67,17 @@ async function GetAllClients(){
     try{
 
         const {keys} = await client.SCAN(0, {MATCH:'*_*'});
-        console.log(keys);
-        const AllData = await Promise.all(keys.map(async (HashName)=>{
+        
+        const filterdKeys = keys.filter(key=>key.match(/^[0-9]+_[0-9]+$/))
+        console.log(filterdKeys)
+        const AllData = await Promise.all(filterdKeys.map(async (HashName)=>{
             const dataStr = await client.HGETALL(HashName)
-            const data = Object.keys(dataStr).map(datakey=>({[datakey]:JSON.parse(dataStr[datakey])}));
-            return {[HashName]: data};
+            const data = Object.keys(dataStr).filter(datakey=>JSON.parse(dataStr[datakey]).MsgType===1121)
+            .map(datakey=>(JSON.parse(dataStr[datakey])));
+            return {[HashName]:data};
         }));
     
-        return {success:true, message: "all users retrived", data: AllData};
+        return {success:true, message: "all users retrived", data: AllData.filter(item=>Object.keys(item))};
 
     }catch(err){
         console.log(err);
